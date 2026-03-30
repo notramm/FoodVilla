@@ -7,34 +7,29 @@ export const searchRestaurantsTool = {
   type: "function",
   function: {
     name: "searchRestaurants",
-    description: `Search for restaurants in Mumbai based on cuisine type, 
-    area, date and number of guests. Use this when user wants to discover 
-    restaurants or find available options. Always use this before making 
-    a reservation if restaurant is not already selected.`,
+    description: "Search restaurants by cuisine, area, date and guests in Mumbai",
     parameters: {
       type: "object",
       properties: {
         cuisine: {
           type: "string",
-          enum: CUISINE_TYPES,
-          description: "Type of cuisine the user wants",
+          enum: ["Indian", "Italian", "Chinese", "Continental", "Mexican", "Japanese", "Thai", "Mediterranean"],
+          description: "Cuisine type",
         },
         area: {
           type: "string",
-          description:
-            "Area or locality in Mumbai. E.g. Dahisar, Mira Road, Borivali",
+          description: "Area in Bangalore like Dahisar, Borivali, Mira Road",
         },
         date: {
           type: "string",
-          description: `Date for the reservation. Can be natural language like 
-          'today', 'tomorrow', 'this saturday' or YYYY-MM-DD format`,
+          description: "Date in YYYY-MM-DD format",
         },
         guests: {
           type: "number",
-          description: "Number of guests for the reservation",
+          description: "Number of guests",
         },
       },
-      required: [], // All optional — AI searches with whatever it has
+      required: [],
     },
   },
 };

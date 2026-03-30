@@ -29,10 +29,12 @@ export const createReservationSchema = z.object({
   specialRequests: z.string().trim().max(200).optional(),
 });
 
-export const cancelReservationSchema = z.object({
-  cancelReason: z.string().trim().max(200).optional(),
-});
-
+export const cancelReservationSchema = z
+  .object({
+    cancelReason: z.string().trim().max(200).optional(),
+  })
+  .optional();
+  
 export const updateReservationSchema = z.object({
   date: z
     .string()

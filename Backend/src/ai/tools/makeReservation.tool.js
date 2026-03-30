@@ -6,23 +6,21 @@ export const makeReservationTool = {
   type: "function",
   function: {
     name: "makeReservation",
-    description: `Book a table at a restaurant for the user. Only call this 
-    after you have ALL required details confirmed with the user — restaurant, 
-    date, time, and number of guests. Always confirm details before booking!`,
+    description: "Book a table at a restaurant after user confirms all details",
     parameters: {
       type: "object",
       properties: {
         restaurantId: {
           type: "string",
-          description: "The MongoDB ID of the restaurant to book",
+          description: "Restaurant ID",
         },
         date: {
           type: "string",
-          description: "Date of reservation in YYYY-MM-DD format",
+          description: "Date in YYYY-MM-DD format",
         },
         time: {
           type: "string",
-          description: "Time of reservation in HH:MM format. E.g. 19:00",
+          description: "Time in HH:MM format like 19:00",
         },
         guests: {
           type: "number",
@@ -30,8 +28,7 @@ export const makeReservationTool = {
         },
         specialRequests: {
           type: "string",
-          description: `Any special requests from user like 'window seat', 
-          'birthday celebration', 'high chair needed'`,
+          description: "Any special requests from user",
         },
       },
       required: ["restaurantId", "date", "time", "guests"],

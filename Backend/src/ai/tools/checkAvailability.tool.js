@@ -5,20 +5,17 @@ export const checkAvailabilityTool = {
   type: "function",
   function: {
     name: "checkAvailability",
-    description: `Check available time slots for a specific restaurant on a 
-    given date for a given number of guests. Use this after user selects 
-    a restaurant and wants to see available times.`,
+    description: "Check available time slots for a restaurant on a date",
     parameters: {
       type: "object",
       properties: {
         restaurantId: {
           type: "string",
-          description: "The MongoDB ID of the restaurant",
+          description: "Restaurant ID",
         },
         date: {
           type: "string",
-          description: `Date to check availability. Can be natural language 
-          like 'today', 'tomorrow', 'this saturday' or YYYY-MM-DD format`,
+          description: "Date in YYYY-MM-DD format",
         },
         guests: {
           type: "number",

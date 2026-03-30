@@ -28,17 +28,23 @@ export const bookTable = asyncHandler(async (req, res) => {
 
 export const cancelBooking = asyncHandler(async (req, res) => {
   const { id: reservationId } = req.params;
-  const { cancelReason } = req.body;
 
-  const reservation = await cancelReservation(
+  const cancelReason = req.body?.cancelReason || "Cancelled by user";
+
+  const reservation = await cancelReservation({
     reservationId,
-    req.user._id,
-    cancelReason
+    userId: req.user._id,
+    cancelReason,
+    userEmail: req.user.email,
+    userName: req.user.name,
+  }
   );
 
   return res
     .status(200)
-    .json(new ApiResponse(200, reservation, "Reservation cancelled successfully"));
+    .json(
+      new ApiResponse(200, reservation, "Reservation cancelled successfully")
+    );
 });
 
 export const myReservations = asyncHandler(async (req, res) => {

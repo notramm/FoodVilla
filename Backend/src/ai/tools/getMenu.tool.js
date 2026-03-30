@@ -8,24 +8,21 @@ export const getMenuTool = {
   type: "function",
   function: {
     name: "getMenu",
-    description: `Get the menu of a restaurant. Use this when user asks about 
-    food options, wants to know what a restaurant serves, or after a booking 
-    to suggest dishes. Can filter by veg only or search specific items.`,
+    description: "Get menu items of a restaurant",
     parameters: {
       type: "object",
       properties: {
         restaurantId: {
           type: "string",
-          description: "The MongoDB ID of the restaurant",
+          description: "Restaurant ID",
         },
         vegOnly: {
           type: "boolean",
-          description: "If true, return only vegetarian items",
+          description: "True to get only vegetarian items",
         },
         searchQuery: {
           type: "string",
-          description: `Search for specific dish or category. 
-          E.g. 'pasta', 'desserts', 'biryani'`,
+          description: "Search specific dish or category",
         },
       },
       required: ["restaurantId"],

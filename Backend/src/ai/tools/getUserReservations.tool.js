@@ -4,9 +4,7 @@ export const getUserReservationsTool = {
   type: "function",
   function: {
     name: "getUserReservations",
-    description: `Get all reservations of the current logged in user. 
-    Use this when user asks 'show my bookings', 'what reservations do I have', 
-    'my upcoming bookings' etc.`,
+    description: "Get all reservations of the logged in user",
     parameters: {
       type: "object",
       properties: {},

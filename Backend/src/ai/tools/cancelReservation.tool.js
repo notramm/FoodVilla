@@ -4,20 +4,17 @@ export const cancelReservationTool = {
   type: "function",
   function: {
     name: "cancelReservation",
-    description: `Cancel an existing reservation for the user. Ask user for 
-    their confirmation code to identify the reservation. Always confirm 
-    with user before cancelling!`,
+    description: "Cancel a reservation using confirmation code",
     parameters: {
       type: "object",
       properties: {
         confirmationCode: {
           type: "string",
-          description: `The confirmation code of the reservation to cancel. 
-          Format is GF-XXXXXX`,
+          description: "Confirmation code like GF-ABC123",
         },
         cancelReason: {
           type: "string",
-          description: "Reason for cancellation provided by the user",
+          description: "Reason for cancellation",
         },
       },
       required: ["confirmationCode"],
@@ -29,9 +26,19 @@ export const executeCancelReservation = async (args, userId) => {
   const { confirmationCode, cancelReason } = args;
 
   // Find reservation by confirmation code first
-  const reservation = await getReservationByCode(confirmationCode);
+  let reservation;
+  try {
+    reservation = await getReservationByCode(confirmationCode);
 
-  // Security check — make sure this reservation belongs to this user!
+  } catch (error) {
+    console.log("Reservation not found error:", error.message);
+    return {
+      success: false,
+      error: `No reservation found with code ${confirmationCode}. Please check the code and try again.`,
+    };
+  }
+
+  // Security check
   if (reservation.user._id.toString() !== userId.toString()) {
     return {
       success: false,
@@ -39,11 +46,18 @@ export const executeCancelReservation = async (args, userId) => {
     };
   }
 
-  await cancelReservation(
-    reservation._id,
-    userId,
-    cancelReason
-  );
+  try {
+    await cancelReservation(
+      reservation._id,
+      userId,
+      cancelReason
+    );
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 
   return {
     success: true,

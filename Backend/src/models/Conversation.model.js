@@ -7,21 +7,15 @@ const messageSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ["user", "assistant", "tool"],
+      enum: ["user", "assistant"], // ✅ tool hata diya — save hi nahi karenge!
       required: true,
     },
     content: {
-      type: mongoose.Schema.Types.Mixed, // can be string or array (for tool results)
+      type: String, // ✅ String only — no mixed type needed now!
       required: true,
     },
-    toolCallId: {
-      type: String, // only for tool messages
-    },
-    toolName: {
-      type: String, // which tool was called
-    },
   },
-  { _id: false, timestamps: false }
+  { _id: false }
 );
 
 const conversationSchema = new mongoose.Schema(

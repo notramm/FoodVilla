@@ -20,6 +20,6 @@ router.use(verifyJWT);
 router.post("/", validate(createReservationSchema, "body"), bookTable);
 router.get("/my", myReservations);
 router.get("/code/:code", getByCode);
-router.patch("/:id/cancel", validate(cancelReservationSchema, "body"), cancelBooking);
+router.patch("/:id/cancel", cancelBooking);
 
 export default router;

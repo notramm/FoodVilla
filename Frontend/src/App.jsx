@@ -5,6 +5,7 @@ const App = () => {
     <div>
       <h1 class="text-3xl font-bold underline">Hello world!</h1>
       <h2>hello Duniya</h2>
+      <h3>Namaste World</h3>
     </div>
   );
 };

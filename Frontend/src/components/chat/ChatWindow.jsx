@@ -84,7 +84,7 @@ const ChatWindow = () => {
           className={cn(
             "fixed bottom-24 right-6 z-50",
             "w-96 max-w-[calc(100vw-48px)]",
-            "bg-[#fffaf5] rounded-2xl shadow-2xl shadow-orange-100/50 border border-orange-100",
+            "bg-surface rounded-2xl shadow-2xl shadow-orange-100/50 border border-orange-100",
             "flex flex-col overflow-hidden",
             "animate-slide-up",
           )}

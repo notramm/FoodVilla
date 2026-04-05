@@ -64,7 +64,7 @@
 
 @layer base {
   body {
-    @apply bg-[#fffaf5] text-gray-900 antialiased;
+    @apply bg-surface text-gray-900 antialiased;
     font-family: var(--font-sans);
   }
   h1, h2, h3 {

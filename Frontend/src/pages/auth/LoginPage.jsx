@@ -42,7 +42,7 @@ const LoginPage = () => {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-600 via-primary-600 to-rose-700 relative overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-orange-600 via-primary-600 to-rose-700 relative overflow-hidden"
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">

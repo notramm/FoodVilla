@@ -59,7 +59,7 @@ const RestaurantDetailPage = () => {
     >
       {/* ── HERO ── */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
-        <section className="relative w-full h-[500px] md:h-[580px] overflow-hidden rounded-none md:rounded-3xl md:mx-auto max-w-7xl md:mt-6 md:px-0">
+        <section className="relative w-full h-125 md:h-145 overflow-hidden rounded-none md:rounded-3xl md:mx-auto max-w-7xl md:mt-6 md:px-0">
         {images?.length > 0 ? (
           <img
             src={images[0]}
@@ -183,7 +183,7 @@ const RestaurantDetailPage = () => {
       
 
       {/* ── TABS + CONTENT ── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 -mt-0 relative z-10">
+      <section className="max-w-7xl mx-auto px-6 md:px-8 mt-0 relative z-10">
         {/* Tab Bar */}
         <div className="pt-10 pb-2 flex items-baseline gap-4">
           <h2
@@ -193,7 +193,7 @@ const RestaurantDetailPage = () => {
             Menu
           </h2>
           <div
-            className="flex-grow h-px"
+            className="grow h-px"
             style={{ backgroundColor: "rgba(193,200,199,0.25)" }}
           />
         </div>
@@ -223,7 +223,7 @@ const RestaurantDetailPage = () => {
                       {category}
                     </h2>
                     <div
-                      className="flex-grow h-px"
+                      className="grow h-px"
                       style={{ backgroundColor: "rgba(193,200,199,0.25)" }}
                     />
                   </div>
@@ -242,7 +242,7 @@ const RestaurantDetailPage = () => {
                               />
                             </div>
                           )}
-                          <div className="flex-grow">
+                          <div className="grow">
                             <div className="flex justify-between items-start mb-1">
                               <div className="flex items-center gap-2">
                                 <h3

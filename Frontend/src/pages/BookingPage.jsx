@@ -65,7 +65,7 @@ const BookingPage = () => {
         >
           <div className="rounded-xl overflow-hidden editorial-shadow" style={{ backgroundColor: '#ffffff' }}>
             {/* Image */}
-            <div className="aspect-[4/5] relative">
+            <div className="aspect-4/5 relative">
               {restaurant.images?.length > 0 ? (
                 <img
                   src={restaurant.images[0]}

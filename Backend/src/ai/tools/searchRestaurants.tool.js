@@ -1,24 +1,24 @@
 import { CUISINE_TYPES } from "../../utils/constants.js";
-import { searchRestaurants } from "../../services/restaurant.service.js";
+import { Restaurant } from "../../models/Restaurant.model.js";
 import { parseNaturalDate } from "../../services/datetime.service.js";
+import { trackSearchAppearance, trackAIMention } from "../../services/analytics.service.js";
 
-// Definition — what OpenAI sees
 export const searchRestaurantsTool = {
   type: "function",
   function: {
     name: "searchRestaurants",
-    description: "Search restaurants by cuisine, area, date and guests in Mumbai",
+    description: "Search restaurants by cuisine, area, ambiance, amenities and date in Bangalore",
     parameters: {
       type: "object",
       properties: {
         cuisine: {
           type: "string",
-          enum: ["Indian", "Italian", "Chinese", "Continental", "Mexican", "Japanese", "Thai", "Mediterranean"],
+          enum: CUISINE_TYPES,
           description: "Cuisine type",
         },
         area: {
           type: "string",
-          description: "Area in Bangalore like Dahisar, Borivali, Mira Road",
+          description: "Area in Bangalore",
         },
         date: {
           type: "string",
@@ -28,30 +28,47 @@ export const searchRestaurantsTool = {
           type: "number",
           description: "Number of guests",
         },
+        ambiance: {
+          type: "string",
+          description: "Vibe — romantic, casual, family, rooftop, fine_dining etc",
+        },
+        amenities: {
+          type: "string",
+          description: "Special requirements — craft_beer, live_music, parking, wifi etc",
+        },
+        tags: {
+          type: "string",
+          description: "Any special tags — quiet, romantic, group friendly etc",
+        },
       },
       required: [],
     },
   },
 };
 
-// Execution — actual logic
 export const executeSearchRestaurants = async (args) => {
-  const { cuisine, area, date, guests } = args;
+  const { cuisine, area, date, guests, ambiance, amenities, tags } = args;
 
-  // Parse natural language date if provided
-  let parsedDate;
-  if (date) {
-    parsedDate = parseNaturalDate(date);
-  }
+  // Build query
+  const query = {
+    isActive: true,
+    isApproved: true,
+    isBanned: false,
+  };
 
-  const restaurants = await searchRestaurants({
-    cuisine,
-    area,
-    date: parsedDate,
-    guests,
-  });
+  if (cuisine) query.cuisine = { $in: [cuisine] };
+  if (area) query["address.area"] = { $regex: area, $options: "i" };
+  if (ambiance) query.ambiance = ambiance;
+  if (amenities) query.amenities = { $in: [amenities] };
+  if (tags) query.tags = { $regex: tags, $options: "i" };
 
-  if (restaurants.length === 0) {
+  // ✅ Featured restaurants first! — sorted by isFeatured desc
+  const restaurants = await Restaurant.find(query)
+    .sort({ isFeatured: -1, isVerified: -1, rating: -1 })
+    .select("-managedBy")
+    .populate("owner", "name currentPlan");
+
+  if (!restaurants.length) {
     return {
       success: true,
       message: "No restaurants found matching the criteria",
@@ -59,8 +76,13 @@ export const executeSearchRestaurants = async (args) => {
     };
   }
 
-  // Return clean data — dont send everything to AI
-  // Less tokens = faster + cheaper!
+  // ✅ Track analytics
+  const restaurantIds = restaurants.map((r) => r._id);
+  await trackSearchAppearance(restaurantIds).catch(() => {});
+  await Promise.all(
+    restaurantIds.map((id) => trackAIMention(id).catch(() => {}))
+  );
+
   return {
     success: true,
     count: restaurants.length,
@@ -72,6 +94,11 @@ export const executeSearchRestaurants = async (args) => {
       rating: r.rating,
       averageCostForTwo: r.averageCostForTwo,
       description: r.description,
+      ambiance: r.ambiance,
+      amenities: r.amenities,
+      tags: r.tags,
+      isFeatured: r.isFeatured,   // ✅ AI knows this is featured
+      isVerified: r.isVerified,   // ✅ AI knows this is verified
     })),
   };
 };

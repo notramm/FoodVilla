@@ -10,40 +10,21 @@ import {
   X,
   ChevronRight,
   LogOut,
-  ShieldCheck,
+  ShieldCheck, Crown,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth.js";
 import Avatar from "../../components/ui/Avatar.jsx";
 import { cn } from "../../utils/cn.js";
 
+
 const NAV_ITEMS = [
-  {
-    label: "Overview",
-    href: "/admin",
-    icon: LayoutDashboard,
-    end: true,
-  },
-  {
-    label: "Owners",
-    href: "/admin/owners",
-    icon: Users,
-  },
-  {
-    label: "Restaurants",
-    href: "/admin/restaurants",
-    icon: UtensilsCrossed,
-  },
-  {
-    label: "Reservations",
-    href: "/admin/reservations",
-    icon: CalendarDays,
-  },
-  {
-    label: "Commission",
-    href: "/admin/commission",
-    icon: IndianRupee,
-  },
+  { label: "Overview", href: "/admin", icon: LayoutDashboard, end: true },
+  { label: "Owners", href: "/admin/owners", icon: Users },
+  { label: "Restaurants", href: "/admin/restaurants", icon: UtensilsCrossed },
+  { label: "Reservations", href: "/admin/reservations", icon: CalendarDays },
+  { label: "Subscriptions", href: "/admin/subscriptions", icon: Crown }, // ✅ New!
+  { label: "Revenue", href: "/admin/commission", icon: IndianRupee },
 ];
 
 const AdminLayout = () => {

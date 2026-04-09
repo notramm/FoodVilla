@@ -8,7 +8,7 @@ import {
   Menu,
   X,
   ChevronRight,
-  LogOut,
+  LogOut, Crown,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth.js";
@@ -37,6 +37,7 @@ const NAV_ITEMS = [
     href: "/owner/commission",
     icon: IndianRupee,
   },
+  { label: "Subscription", href: "/owner/subscription", icon: Crown },
 ];
 
 const OwnerLayout = () => {

@@ -14,6 +14,7 @@ import reservationRoutes from "./routes/reservation.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import ownerRoutes from "./routes/owner.routes.js";
+import subscriptionRoutes from "./routes/subscription.routes.js";
 
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api/v1/reservations", reservationRoutes);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/owner", ownerRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/subscription", subscriptionRoutes);
 
 // 404 handler — route not found
 app.use((req, res) => {

@@ -1,5 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { MapPin, Star, Users, IndianRupee, Clock } from "lucide-react";
+import {
+  MapPin,
+  Star,
+  IndianRupee,
+  BadgeCheck,
+  Sparkles,
+} from "lucide-react";
 import Card from "../ui/Card.jsx";
 import Badge from "../ui/Badge.jsx";
 import Button from "../ui/Button.jsx";
@@ -53,6 +59,20 @@ const RestaurantCard = ({ restaurant }) => {
             </Badge>
           ))}
         </div>
+
+        {restaurant.isFeatured && (
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-primary-500 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+            <Sparkles size={11} />
+            Featured
+          </div>
+        )}
+
+        {restaurant.isVerified && !restaurant.isFeatured && (
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-blue-500 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+            <BadgeCheck size={11} />
+            Verified
+          </div>
+        )}
 
         {/* Rating on image */}
         {rating > 0 && (

@@ -19,12 +19,12 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [8, "Password must be at least 8 characters"],
+      minlength: [8, "Min 8 characters"],
       select: false,
     },
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
+      required: [true, "Phone is required"],
       trim: true,
     },
     role: {
@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    // ✅ Owner specific fields
+    // ✅ Owner specific
     businessName: {
       type: String,
       trim: true,
@@ -46,19 +46,30 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    commissionRate: {
-      type: Number,
-      default: 10, // 10% default commission
-      min: 0,
-      max: 100,
-    },
-    totalCommissionPaid: {
-      type: Number,
-      default: 0, // Track lifetime commission paid by owner
+
+    // ✅ Subscription info — replaces commissionRate!
+    currentPlan: {
+      type: String,
+      enum: ["free", "premium", "featured"],
+      default: "free",
     },
     isApproved: {
       type: Boolean,
-      default: false, // Admin must approve owner before they can list restaurants
+      default: false,
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    banReason: {
+      type: String,
+      default: null,
+    },
+
+    // ✅ Razorpay customer ID
+    razorpayCustomerId: {
+      type: String,
+      default: null,
     },
 
     refreshToken: {

@@ -51,4 +51,8 @@ export const adminService = {
   getCommissions: async () => {
     return await api.get("/admin/commissions");
   },
+
+  getSubscriptions: async () => {
+    return await api.get("/admin/subscriptions");
+  },
 };

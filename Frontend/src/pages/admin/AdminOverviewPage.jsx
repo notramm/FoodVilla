@@ -48,40 +48,41 @@ const AdminOverviewPage = () => {
 
   const recent = reservations?.slice(0, 6);
 
-  const STATS = [
-    {
-      icon: <Users size={22} className="text-blue-500" />,
-      label: "Total Users",
-      value: stats?.totalUsers || 0,
-      sub: `${stats?.totalOwners || 0} restaurant owners`,
-      color: "bg-blue-50",
-      delay: 0,
-    },
-    {
-      icon: <UtensilsCrossed size={22} className="text-primary-500" />,
-      label: "Restaurants",
-      value: stats?.totalRestaurants || 0,
-      sub: `${stats?.approvedRestaurants || 0} live`,
-      color: "bg-primary-50",
-      delay: 0.1,
-    },
-    {
-      icon: <CalendarDays size={22} className="text-purple-500" />,
-      label: "Total Reservations",
-      value: stats?.totalReservations || 0,
-      sub: `${stats?.completedReservations || 0} completed`,
-      color: "bg-purple-50",
-      delay: 0.2,
-    },
-    {
-      icon: <IndianRupee size={22} className="text-green-500" />,
-      label: "Commission Earned",
-      value: formatPrice(stats?.totalCommissionEarned || 0),
-      sub: `${formatPrice(stats?.totalCommissionPending || 0)} pending`,
-      color: "bg-green-50",
-      delay: 0.3,
-    },
-  ];
+// Replace commission stats with subscription stats
+const STATS = [
+  {
+    icon: <Users size={22} className="text-blue-500" />,
+    label: "Total Users",
+    value: stats?.totalUsers || 0,
+    sub: `${stats?.totalOwners || 0} restaurant owners`,
+    color: "bg-blue-50",
+    delay: 0,
+  },
+  {
+    icon: <UtensilsCrossed size={22} className="text-primary-500" />,
+    label: "Restaurants",
+    value: stats?.totalRestaurants || 0,
+    sub: `${stats?.approvedRestaurants || 0} live • ${stats?.featuredRestaurants || 0} featured ⭐`,
+    color: "bg-primary-50",
+    delay: 0.1,
+  },
+  {
+    icon: <CalendarDays size={22} className="text-purple-500" />,
+    label: "Total Reservations",
+    value: stats?.totalReservations || 0,
+    sub: `${stats?.completedReservations || 0} completed`,
+    color: "bg-purple-50",
+    delay: 0.2,
+  },
+  {
+    icon: <IndianRupee size={22} className="text-green-500" />,
+    label: "Subscription Revenue",
+    value: formatPrice(stats?.totalRevenue || 0),
+    sub: `${stats?.activeSubscriptions || 0} active • ${stats?.featuredSubs || 0} featured`,
+    color: "bg-green-50",
+    delay: 0.3,
+  },
+];
 
   return (
     <div>

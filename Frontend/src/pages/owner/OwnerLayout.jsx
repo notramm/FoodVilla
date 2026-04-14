@@ -32,11 +32,6 @@ const NAV_ITEMS = [
     href: "/owner/reservations",
     icon: CalendarDays,
   },
-  {
-    label: "Commission",
-    href: "/owner/commission",
-    icon: IndianRupee,
-  },
   { label: "Subscription", href: "/owner/subscription", icon: Crown },
 ];
 

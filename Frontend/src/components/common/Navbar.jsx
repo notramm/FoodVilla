@@ -7,6 +7,7 @@ import {
   MessageSquare,
   CalendarDays,
   LogOut,
+  Crown,
   User,
   ChevronDown,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import { cn } from "../../utils/cn.js";
 import { useIsAdmin } from "../../hooks/useAdmin.js";
 import { LayoutDashboard, Store } from "lucide-react";
 import { useIsOwner } from "../../hooks/useOwner.js";
+import { useMySubscription } from "../../hooks/useSubscription.js";
 
 const navLinks = [
   { label: "Restaurants", href: "/restaurants" },
@@ -36,6 +38,10 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const isActive = (href) => location.pathname === href;
+
+  const isOwner = useIsOwner();
+  const { data: subscription } = useMySubscription();
+  const hasActiveSubscription = subscription?.status === "active";
 
   const handleLogout = () => {
     logout();
@@ -138,17 +144,6 @@ const Navbar = () => {
                           My Reservations
                         </Link>
 
-                        {useIsOwner && (
-                          <Link
-                            to="/owner"
-                            onClick={() => setIsProfileOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                          >
-                            <Store size={16} className="text-gray-400" />
-                            Owner Dashboard
-                          </Link>
-                        )}
-
                         {isAdmin && (
                           <Link
                             to="/admin"
@@ -160,6 +155,28 @@ const Navbar = () => {
                               className="text-gray-400"
                             />
                             Admin Dashboard
+                          </Link>
+                        )}
+
+                        {isOwner && hasActiveSubscription && (
+                          <Link
+                            to="/owner"
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Store size={16} className="text-gray-400" />
+                            Owner Dashboard
+                          </Link>
+                        )}
+
+                        {isOwner && !hasActiveSubscription && (
+                          <Link
+                            to="/become-owner"
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-primary-600 hover:bg-primary-50 transition-colors font-medium"
+                          >
+                            <Crown size={16} className="text-primary-500" />
+                            Activate Dashboard
                           </Link>
                         )}
 
@@ -213,6 +230,17 @@ const Navbar = () => {
               </div>
             )}
           </div>
+          {isAuthenticated && !isOwner && !isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/become-owner")}
+              leftIcon={<Store size={16} />}
+              className="hidden md:inline-flex"
+            >
+              List Restaurant
+            </Button>
+          )}
         </div>
 
         {/* Mobile Menu */}

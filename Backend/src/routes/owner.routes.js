@@ -6,35 +6,62 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Restaurant } from "../models/Restaurant.model.js";
 import { Reservation } from "../models/Reservation.model.js";
+import { Subscription } from "../models/Subscription.model.js";
 import { USER_ROLES } from "../utils/constants.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { createRestaurantSchema } from "../validators/restaurant.validator.js";
 import cloudinary from "../config/cloudinary.js";
 import multer from "multer";
+import {
+  completeReservation,
+  markNoShow,
+} from "../services/reservation.service.js";
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-// All owner routes need auth + owner role + approved
 router.use(verifyJWT);
 router.use(authorizeRoles(USER_ROLES.OWNER, USER_ROLES.ADMIN));
 router.use(verifyOwnerApproved);
 
-// Get my restaurants
+// -------------------------------------------------------
+// Check active subscription middleware
+// -------------------------------------------------------
+const requireSubscription = asyncHandler(async (req, res, next) => {
+  // Admin bypass
+  if (req.user.role === USER_ROLES.ADMIN) return next();
+
+  const subscription = await Subscription.findOne({
+    owner: req.user._id,
+    status: "active",
+  });
+
+  if (!subscription) {
+    throw new ApiError(
+      403,
+      "Active subscription required. Please subscribe to access owner features."
+    );
+  }
+
+  req.subscription = subscription;
+  next();
+});
+
+router.use(requireSubscription);
+
+// -------------------------------------------------------
+// RESTAURANTS
+// -------------------------------------------------------
 router.get("/restaurants", asyncHandler(async (req, res) => {
   const restaurants = await Restaurant.find({
     owner: req.user._id,
   }).sort({ createdAt: -1 });
 
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      { count: restaurants.length, restaurants },
-      "Restaurants fetched"
-    )
+    new ApiResponse(200, { count: restaurants.length, restaurants }, "Restaurants fetched")
   );
 }));
 
-// Add restaurant
 router.post(
   "/restaurants",
   validate(createRestaurantSchema),
@@ -42,8 +69,7 @@ router.post(
     const restaurant = await Restaurant.create({
       ...req.body,
       owner: req.user._id,
-      commissionRate: req.user.commissionRate,
-      isApproved: false, // Admin must approve!
+      isApproved: false,
     });
 
     return res.status(201).json(
@@ -52,13 +78,11 @@ router.post(
   })
 );
 
-// Update restaurant details
 router.patch(
   "/restaurants/:id",
   verifyRestaurantOwner,
   asyncHandler(async (req, res) => {
-    // Owner cannot change owner or commissionRate
-    const { owner, commissionRate, isApproved, ...allowedUpdates } = req.body;
+    const { owner, isApproved, isBanned, ...allowedUpdates } = req.body;
 
     const restaurant = await Restaurant.findByIdAndUpdate(
       req.params.id,
@@ -73,12 +97,10 @@ router.patch(
 );
 
 // Upload restaurant images
-const upload = multer({ storage: multer.memoryStorage() });
-
 router.post(
   "/restaurants/:id/images",
   verifyRestaurantOwner,
-  upload.array("images", 5), // Max 5 images
+  upload.array("images", 5),
   asyncHandler(async (req, res) => {
     if (!req.files?.length) {
       throw new ApiError(400, "No images provided");
@@ -86,7 +108,6 @@ router.post(
 
     const imageUrls = [];
 
-    // Upload each image to cloudinary
     for (const file of req.files) {
       const base64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
       const result = await cloudinary.uploader.upload(base64, {
@@ -94,12 +115,12 @@ router.post(
         transformation: [
           { width: 800, height: 600, crop: "fill" },
           { quality: "auto" },
+          { format: "webp" },
         ],
       });
       imageUrls.push(result.secure_url);
     }
 
-    // Add to restaurant images array
     const restaurant = await Restaurant.findByIdAndUpdate(
       req.params.id,
       { $push: { images: { $each: imageUrls } } },
@@ -112,7 +133,6 @@ router.post(
   })
 );
 
-// Delete specific image
 router.delete(
   "/restaurants/:id/images",
   verifyRestaurantOwner,
@@ -131,9 +151,10 @@ router.delete(
   })
 );
 
-// Get reservations for my restaurants
+// -------------------------------------------------------
+// RESERVATIONS
+// -------------------------------------------------------
 router.get("/reservations", asyncHandler(async (req, res) => {
-  // Get all my restaurant IDs
   const myRestaurants = await Restaurant.find({
     owner: req.user._id,
   }).select("_id");
@@ -148,57 +169,33 @@ router.get("/reservations", asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 });
 
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      { count: reservations.length, reservations },
-      "Reservations fetched"
-    )
+    new ApiResponse(200, { count: reservations.length, reservations }, "Reservations fetched")
   );
 }));
 
-// Mark reservation as completed — triggers commission!
 router.patch(
   "/reservations/:id/complete",
   asyncHandler(async (req, res) => {
-    const reservation = await Reservation.findById(req.params.id).populate(
-      "restaurant"
+    const reservation = await completeReservation(
+      req.params.id,
+      req.user._id
     );
 
-    if (!reservation) {
-      throw new ApiError(404, "Reservation not found");
-    }
-
-    // Verify this reservation is for owner's restaurant
-    if (
-      reservation.restaurant.owner.toString() !== req.user._id.toString() &&
-      req.user.role !== USER_ROLES.ADMIN
-    ) {
-      throw new ApiError(403, "Not authorized");
-    }
-
-    if (reservation.status !== "confirmed") {
-      throw new ApiError(400, "Only confirmed reservations can be completed");
-    }
-
-    reservation.status = "completed";
-    await reservation.save();
-
-    // ✅ Earn commission!
-    await earnCommission(reservation._id);
-
     return res.status(200).json(
-      new ApiResponse(200, reservation, "Reservation completed. Commission earned!")
+      new ApiResponse(200, reservation, "Reservation completed!")
     );
   })
 );
 
-// Get my commission summary
-router.get("/commissions", asyncHandler(async (req, res) => {
-  const data = await getOwnerCommissionSummary(req.user._id);
+router.patch(
+  "/reservations/:id/noshow",
+  asyncHandler(async (req, res) => {
+    const reservation = await markNoShow(req.params.id, req.user._id);
 
-  return res.status(200).json(
-    new ApiResponse(200, data, "Commission summary fetched")
-  );
-}));
+    return res.status(200).json(
+      new ApiResponse(200, reservation, "Marked as no-show")
+    );
+  })
+);
 
 export default router;

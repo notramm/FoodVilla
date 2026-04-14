@@ -7,6 +7,7 @@ import PublicRoute from "../components/common/PublicRoute.jsx";
 import PageLoader from "../components/ui/PageLoader.jsx";
 import ErrorBoundary from "../components/common/ErrorBoundary.jsx";
 import OwnerRoute from "../components/common/OwnerRoute.jsx";
+import BecomeOwnerPage from "../pages/BecomeOwnerPage.jsx";
 
 // Lazy load pages — faster initial load!
 const HomePage = lazy(() => import("../pages/HomePage.jsx"));
@@ -28,8 +29,8 @@ import AdminRoute from "../components/common/AdminRoute.jsx";
 const AdminLayout = lazy(() => import("../pages/admin/AdminLayout.jsx"));
 
 // Admin — add subscriptions route
-const AdminSubscriptionsPage = lazy(() =>
-  import("../pages/admin/AdminSubscriptionsPage.jsx")
+const AdminSubscriptionsPage = lazy(
+  () => import("../pages/admin/AdminSubscriptionsPage.jsx"),
 );
 const AdminOverviewPage = lazy(
   () => import("../pages/admin/AdminOverviewPage.jsx"),
@@ -51,8 +52,8 @@ const AdminCommissionPage = lazy(
 // Lazy load owner pages
 const OwnerLayout = lazy(() => import("../pages/owner/OwnerLayout.jsx"));
 // Owner — add subscription route
-const OwnerSubscriptionPage = lazy(() =>
-  import("../pages/owner/OwnerSubscriptionPage.jsx")
+const OwnerSubscriptionPage = lazy(
+  () => import("../pages/owner/OwnerSubscriptionPage.jsx"),
 );
 const OwnerOverviewPage = lazy(
   () => import("../pages/owner/OwnerOverviewPage.jsx"),
@@ -162,6 +163,8 @@ const AppRoutes = () => {
               }
             />
 
+            <Route path="/become-owner" element={<BecomeOwnerPage />} />
+
             <Route
               path="/admin"
               element={
@@ -172,7 +175,10 @@ const AppRoutes = () => {
             >
               <Route index element={<AdminOverviewPage />} />
               <Route path="owners" element={<AdminOwnersPage />} />
-              <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+              <Route
+                path="subscriptions"
+                element={<AdminSubscriptionsPage />}
+              />
               <Route path="restaurants" element={<AdminRestaurantsPage />} />
               <Route path="reservations" element={<AdminReservationsPage />} />
               <Route path="commission" element={<AdminCommissionPage />} />
@@ -186,10 +192,9 @@ const AppRoutes = () => {
               }
             >
               <Route index element={<OwnerOverviewPage />} />
-              <Route path="subscription" element={<OwnerSubscriptionPage />} />
               <Route path="restaurants" element={<OwnerRestaurantsPage />} />
               <Route path="reservations" element={<OwnerReservationsPage />} />
-              <Route path="commission" element={<OwnerCommissionPage />} />
+              <Route path="subscription" element={<OwnerSubscriptionPage />} />
             </Route>
 
             {/* 404 */}

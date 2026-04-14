@@ -1,18 +1,30 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../features/auth/authSlice.js";
+import { useMySubscription } from "../../hooks/useSubscription.js";
+import Spinner from "../ui/Spinner.jsx";
 
 const OwnerRoute = ({ children }) => {
   const user = useSelector(selectUser);
+  const { data: subscription, isLoading } = useMySubscription();
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user.role !== "owner" && user.role !== "admin") {
-    return <Navigate to="/" replace />;
+  // Admin bypass — admin can see everything
+  if (user.role === "admin") return <Navigate to="/admin" replace />;
+
+  if (user.role !== "owner") return <Navigate to="/" replace />;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size="xl" />
+      </div>
+    );
   }
 
   // Owner not approved yet
-  if (user.role === "owner" && !user.isApproved) {
+  if (!user.isApproved) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="text-center max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -23,12 +35,17 @@ const OwnerRoute = ({ children }) => {
             Account Pending Approval
           </h2>
           <p className="text-gray-500 text-sm">
-            Your owner account is pending admin approval. You will be
-            notified once approved!
+            Your owner account is pending admin approval.
+            You will be notified once approved!
           </p>
         </div>
       </div>
     );
+  }
+
+  // ✅ No active subscription — redirect to subscription page
+  if (!subscription || subscription.status !== "active") {
+    return <Navigate to="/become-owner" replace />;
   }
 
   return children;

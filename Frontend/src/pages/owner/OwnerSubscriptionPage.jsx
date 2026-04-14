@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Crown, AlertTriangle, Calendar,
-  CheckCircle, XCircle, Info,
+  CheckCircle, XCircle,
 } from "lucide-react";
 import {
   usePlans,
@@ -25,13 +25,12 @@ const OwnerSubscriptionPage = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const { data: plans, isLoading: plansLoading } = usePlans();
-  const { data: subscription, isLoading: subLoading } =
-    useMySubscription();
+  const { data: subscription, isLoading: subLoading } = useMySubscription();
   const { mutate: subscribe, isPending: isSubscribing } = useSubscribe();
-  const { mutate: cancelSub, isPending: isCancelling } =
-    useCancelSubscription();
+  const { mutate: cancelSub, isPending: isCancelling } = useCancelSubscription();
 
   const isLoading = plansLoading || subLoading;
+  const currentPlan = user?.currentPlan || "free";
 
   const handleSelectPlan = (plan) => {
     setSelectedPlan(plan);
@@ -49,22 +48,18 @@ const OwnerSubscriptionPage = () => {
     );
   }
 
-  const currentPlan = user?.currentPlan || "free";
-  const periodEnd = subscription?.currentPeriodEnd;
-
   return (
     <div>
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
-          Subscription 👑
+          My Subscription 👑
         </h1>
         <p className="text-gray-500 mt-1">
           Manage your GoodFoods plan
         </p>
       </div>
 
-      {/* Current Plan Banner */}
+      {/* Current Plan */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -80,45 +75,28 @@ const OwnerSubscriptionPage = () => {
           <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
             <Crown
               size={22}
-              className={
-                currentPlan === "free"
-                  ? "text-gray-500"
-                  : "text-white"
-              }
+              className={currentPlan === "free" ? "text-gray-500" : "text-white"}
             />
           </div>
           <div>
-            <p
-              className={`font-bold text-lg capitalize ${
-                currentPlan === "free"
-                  ? "text-gray-900"
-                  : "text-white"
-              }`}
-            >
+            <p className={`font-bold text-lg capitalize ${currentPlan === "free" ? "text-gray-900" : "text-white"}`}>
               {currentPlan} Plan
             </p>
-            <p
-              className={
-                currentPlan === "free"
-                  ? "text-gray-500 text-sm"
-                  : "text-white/80 text-sm"
-              }
-            >
+            <p className={currentPlan === "free" ? "text-gray-500 text-sm" : "text-white/80 text-sm"}>
               {currentPlan === "free"
                 ? "Basic features included"
-                : periodEnd
-                ? `Renews on ${formatDate(periodEnd)}`
+                : subscription?.currentPeriodEnd
+                ? `Renews on ${formatDate(subscription.currentPeriodEnd)}`
                 : "Active"}
             </p>
           </div>
         </div>
-
-        {currentPlan !== "free" && subscription && (
+        {currentPlan !== "free" && (
           <button
             onClick={() => setCancelModal(true)}
-            className="text-white/80 hover:text-white text-sm underline transition-colors"
+            className="text-white/80 hover:text-white text-sm underline"
           >
-            Cancel Plan
+            Cancel
           </button>
         )}
       </motion.div>
@@ -126,45 +104,28 @@ const OwnerSubscriptionPage = () => {
       {/* Payment History */}
       {subscription?.payments?.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8"
         >
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">
-              Payment History
-            </h2>
+            <h2 className="font-semibold text-gray-900">Payment History</h2>
           </div>
           <div className="divide-y divide-gray-50">
             {subscription.payments.map((payment, i) => (
-              <div
-                key={i}
-                className="px-6 py-3 flex items-center justify-between"
-              >
+              <div key={i} className="px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {payment.status === "success" ? (
-                    <CheckCircle
-                      size={16}
-                      className="text-green-500"
-                    />
+                    <CheckCircle size={16} className="text-green-500" />
                   ) : (
                     <XCircle size={16} className="text-red-500" />
                   )}
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {formatPrice(payment.amount)}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {formatDate(payment.paidAt)}
-                    </p>
+                    <p className="text-sm font-medium">{formatPrice(payment.amount)}</p>
+                    <p className="text-xs text-gray-400">{formatDate(payment.paidAt)}</p>
                   </div>
                 </div>
-                <Badge
-                  variant={
-                    payment.status === "success" ? "success" : "danger"
-                  }
-                  size="sm"
-                >
+                <Badge variant={payment.status === "success" ? "success" : "danger"} size="sm">
                   {payment.status}
                 </Badge>
               </div>
@@ -173,31 +134,10 @@ const OwnerSubscriptionPage = () => {
         </motion.div>
       )}
 
-      {/* Info Banner */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-8 flex items-start gap-3"
-      >
-        <Info size={18} className="text-blue-500 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-medium text-blue-800">
-            Featured Plan Benefit
-          </p>
-          <p className="text-xs text-blue-600 mt-0.5">
-            Your restaurants appear{" "}
-            <strong>first in AI search results</strong> when users
-            ask for restaurant recommendations. This means more
-            visibility and bookings!
-          </p>
-        </div>
-      </motion.div>
-
       {/* Plans */}
       <h2 className="text-lg font-bold text-gray-900 mb-5">
-        Choose Your Plan
+        Available Plans
       </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans?.map((plan, i) => (
           <PlanCard
@@ -205,9 +145,7 @@ const OwnerSubscriptionPage = () => {
             plan={plan}
             currentPlan={currentPlan}
             onSelect={handleSelectPlan}
-            isLoading={
-              isSubscribing && selectedPlan?._id === plan._id
-            }
+            isLoading={isSubscribing && selectedPlan?._id === plan._id}
             delay={i * 0.1}
           />
         ))}
@@ -221,20 +159,13 @@ const OwnerSubscriptionPage = () => {
         size="sm"
         footer={
           <>
-            <Button
-              variant="outline"
-              onClick={() => setCancelModal(false)}
-            >
+            <Button variant="outline" onClick={() => setCancelModal(false)}>
               Keep Plan
             </Button>
             <Button
               variant="danger"
               isLoading={isCancelling}
-              onClick={() =>
-                cancelSub(undefined, {
-                  onSuccess: () => setCancelModal(false),
-                })
-              }
+              onClick={() => cancelSub(undefined, { onSuccess: () => setCancelModal(false) })}
             >
               Yes, Cancel
             </Button>
@@ -249,8 +180,7 @@ const OwnerSubscriptionPage = () => {
             Cancel your {currentPlan} plan?
           </p>
           <p className="text-sm text-gray-500">
-            You will be downgraded to the Free plan immediately. All
-            premium features and featured placements will be removed.
+            You will be downgraded to Free plan. All premium features will be removed.
           </p>
         </div>
       </Modal>

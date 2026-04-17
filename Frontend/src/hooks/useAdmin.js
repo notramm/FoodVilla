@@ -27,6 +27,8 @@ export const useAdminOwners = () => {
     queryKey: ["admin", "owners"],
     queryFn: adminService.getAllOwners,
     select: (data) => data.data.owners,
+    // ✅ Refetch every 30s — see new pending owners quickly
+    refetchInterval: 30000,
   });
 };
 
@@ -34,14 +36,14 @@ export const useApproveOwner = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, isApproved, commissionRate }) =>
-      adminService.approveOwner(id, { isApproved, commissionRate }),
+    mutationFn: ({ id, isApproved }) =>
+      adminService.approveOwner(id, { isApproved }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "owners"] });
       toast.success(
         variables.isApproved
-          ? "Owner approved successfully! ✅"
-          : "Owner rejected"
+          ? "Owner approved! Email sent ✅"
+          : "Owner rejected ❌"
       );
     },
     onError: (error) => {

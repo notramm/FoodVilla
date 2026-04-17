@@ -53,14 +53,16 @@ export const useUpdateRestaurant = (id) => {
   });
 };
 
-// Upload images
-export const useUploadImages = (id) => {
+export const useUploadImages = (restaurantId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (formData) => ownerService.uploadImages(id, formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["owner", "restaurants"] });
+    mutationFn: (formData) =>
+      ownerService.uploadImages(restaurantId, formData),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["owner", "restaurants"],
+      });
       toast.success("Images uploaded successfully!");
     },
     onError: (error) => {
@@ -69,14 +71,16 @@ export const useUploadImages = (id) => {
   });
 };
 
-// Delete image
-export const useDeleteImage = (id) => {
+export const useDeleteImage = (restaurantId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (imageUrl) => ownerService.deleteImage(id, imageUrl),
+    mutationFn: (imageUrl) =>
+      ownerService.deleteImage(restaurantId, imageUrl),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["owner", "restaurants"] });
+      queryClient.invalidateQueries({
+        queryKey: ["owner", "restaurants"],
+      });
       toast.success("Image deleted!");
     },
     onError: (error) => {

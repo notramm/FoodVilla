@@ -1,16 +1,20 @@
 import AppRoutes from "./routes/AppRoutes.jsx";
 import ChatWindow from "./components/chat/ChatWindow.jsx";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated } from "./features/auth/authSlice.js";
+import { selectIsAuthenticated, selectUser } from "./features/auth/authSlice.js";
+import { useAuthRefresh } from "./hooks/useAuthRefresh.js"; // ✅ Add!
 
 const App = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectUser);
+
+  useAuthRefresh();
 
   return (
     <>
       <AppRoutes />
       {/* Global floating chat — shown on all pages when logged in! */}
-      {isAuthenticated && <ChatWindow />}
+      {isAuthenticated && user?.role !== "admin" && <ChatWindow />}
     </>
   );
 };

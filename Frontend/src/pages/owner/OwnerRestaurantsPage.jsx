@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -30,8 +30,13 @@ import { formatPrice } from "../../utils/formatters.js";
 import { useRef } from "react";
 
 const DAYS = [
-  "monday", "tuesday", "wednesday",
-  "thursday", "friday", "saturday", "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ];
 
 // Add/Edit Restaurant Modal
@@ -43,7 +48,11 @@ const RestaurantFormModal = ({ isOpen, onClose, restaurant = null }) => {
 
   const isPending = isAdding || isUpdating;
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: restaurant
       ? {
           name: restaurant.name,
@@ -57,12 +66,18 @@ const RestaurantFormModal = ({ isOpen, onClose, restaurant = null }) => {
           email: restaurant.contact?.email,
           totalSeats: restaurant.totalSeats,
           averageCostForTwo: restaurant.averageCostForTwo,
-          ...DAYS.reduce((acc, day) => ({
-            ...acc,
-            [`${day}_open`]: restaurant.operatingHours?.[day]?.open || "11:00",
-            [`${day}_close`]: restaurant.operatingHours?.[day]?.close || "23:00",
-            [`${day}_closed`]: restaurant.operatingHours?.[day]?.isClosed || false,
-          }), {}),
+          ...DAYS.reduce(
+            (acc, day) => ({
+              ...acc,
+              [`${day}_open`]:
+                restaurant.operatingHours?.[day]?.open || "11:00",
+              [`${day}_close`]:
+                restaurant.operatingHours?.[day]?.close || "23:00",
+              [`${day}_closed`]:
+                restaurant.operatingHours?.[day]?.isClosed || false,
+            }),
+            {},
+          ),
         }
       : {},
   });
@@ -156,9 +171,7 @@ const RestaurantFormModal = ({ isOpen, onClose, restaurant = null }) => {
         </div>
 
         {/* Address */}
-        <p className="text-sm font-semibold text-gray-700 pt-1">
-          Address
-        </p>
+        <p className="text-sm font-semibold text-gray-700 pt-1">Address</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Street"
@@ -172,11 +185,7 @@ const RestaurantFormModal = ({ isOpen, onClose, restaurant = null }) => {
             required
             {...register("area", { required: true })}
           />
-          <Input
-            label="City"
-            placeholder="Bangalore"
-            {...register("city")}
-          />
+          <Input label="City" placeholder="Bangalore" {...register("city")} />
           <Input
             label="Pincode"
             placeholder="560034"
@@ -229,10 +238,7 @@ const RestaurantFormModal = ({ isOpen, onClose, restaurant = null }) => {
         </p>
         <div className="space-y-2.5">
           {DAYS.map((day) => (
-            <div
-              key={day}
-              className="grid grid-cols-4 gap-3 items-center"
-            >
+            <div key={day} className="grid grid-cols-4 gap-3 items-center">
               <span className="text-sm text-gray-600 capitalize font-medium">
                 {day.slice(0, 3)}
               </span>
@@ -262,22 +268,35 @@ const RestaurantFormModal = ({ isOpen, onClose, restaurant = null }) => {
   );
 };
 
-// Image Manager Modal
+// ✅ Fixed ImageManagerModal
 const ImageManagerModal = ({ isOpen, onClose, restaurant }) => {
   const fileInputRef = useRef(null);
+  const [previews, setPreviews] = useState([]);
+
+  // ✅ Pass restaurantId properly
   const { mutate: uploadImages, isPending: isUploading } = useUploadImages(
-    restaurant?._id
+    restaurant?._id,
   );
   const { mutate: deleteImage, isPending: isDeleting } = useDeleteImage(
-    restaurant?._id
+    restaurant?._id,
   );
-  const [previews, setPreviews] = useState([]);
+
+  // Reset previews when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setPreviews([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, [isOpen]);
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
+    if (!files.length) return;
+
     const newPreviews = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
+      name: file.name,
     }));
     setPreviews(newPreviews);
   };
@@ -296,77 +315,97 @@ const ImageManagerModal = ({ isOpen, onClose, restaurant }) => {
     });
   };
 
+  const removePreview = (index) => {
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const currentImageCount = restaurant?.images?.length || 0;
+  const maxImages = 5;
+  const canUploadMore = currentImageCount < maxImages;
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Manage Images"
+      title={`Manage Images — ${restaurant?.name}`}
       size="lg"
     >
       <div className="space-y-5">
-        {/* Existing Images */}
+        {/* Current Images */}
         <div>
           <p className="text-sm font-medium text-gray-700 mb-3">
-            Current Images ({restaurant?.images?.length || 0}/5)
+            Current Images ({currentImageCount}/{maxImages})
           </p>
 
-          {!restaurant?.images?.length ? (
-            <div className="text-center py-8 bg-gray-50 rounded-xl text-gray-400">
-              <Image size={32} className="mx-auto mb-2 opacity-40" />
+          {currentImageCount === 0 ? (
+            <div className="text-center py-8 bg-gray-50 rounded-xl text-gray-400 border-2 border-dashed border-gray-200">
+              <span className="text-3xl block mb-2">🖼️</span>
               <p className="text-sm">No images yet</p>
+              <p className="text-xs mt-1">Add photos to attract customers!</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3">
-              {restaurant.images.map((img, i) => (
+              {restaurant?.images?.map((img, i) => (
                 <div
                   key={i}
-                  className="relative group rounded-xl overflow-hidden aspect-video bg-gray-100"
+                  className="relative group rounded-xl overflow-hidden aspect-video bg-gray-100 shadow-sm"
                 >
                   <img
                     src={img}
-                    alt={`Restaurant ${i + 1}`}
+                    alt={`Image ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
-                  <button
-                    onClick={() => deleteImage(img)}
-                    disabled={isDeleting}
-                    className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X size={12} />
-                  </button>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      onClick={() => deleteImage(img)}
+                      disabled={isDeleting}
+                      className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {i === 0 && (
+                    <div className="absolute top-2 left-2 bg-primary-500 text-white text-xs px-2 py-0.5 rounded-full">
+                      Cover
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Upload New */}
-        {(restaurant?.images?.length || 0) < 5 && (
+        {/* Upload Section */}
+        {canUploadMore && (
           <div>
             <p className="text-sm font-medium text-gray-700 mb-3">
-              Upload New Images
+              Upload New Images ({maxImages - currentImageCount} slots
+              remaining)
             </p>
 
+            {/* Drop Zone */}
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-primary-300 hover:bg-primary-50 transition-all duration-200 group"
             >
-              <Upload
-                size={24}
-                className="mx-auto mb-2 text-gray-400"
-              />
-              <p className="text-sm text-gray-500">
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-100 transition-colors">
+                <Upload
+                  size={22}
+                  className="text-gray-400 group-hover:text-primary-500"
+                />
+              </div>
+              <p className="text-sm font-medium text-gray-700">
                 Click to select images
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Max 5MB each • JPG, PNG, WebP
+                JPG, PNG, WebP • Max 5MB each
               </p>
             </div>
 
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               className="hidden"
               onChange={handleFileSelect}
@@ -374,12 +413,15 @@ const ImageManagerModal = ({ isOpen, onClose, restaurant }) => {
 
             {/* Previews */}
             {previews.length > 0 && (
-              <div className="mt-3">
-                <div className="grid grid-cols-3 gap-3 mb-3">
+              <div className="mt-4">
+                <p className="text-xs text-gray-500 mb-2">
+                  {previews.length} image(s) selected — ready to upload
+                </p>
+                <div className="grid grid-cols-3 gap-3 mb-4">
                   {previews.map((p, i) => (
                     <div
                       key={i}
-                      className="relative rounded-xl overflow-hidden aspect-video"
+                      className="relative rounded-xl overflow-hidden aspect-video bg-gray-100"
                     >
                       <img
                         src={p.url}
@@ -387,12 +429,8 @@ const ImageManagerModal = ({ isOpen, onClose, restaurant }) => {
                         className="w-full h-full object-cover"
                       />
                       <button
-                        onClick={() =>
-                          setPreviews((prev) =>
-                            prev.filter((_, idx) => idx !== i)
-                          )
-                        }
-                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
+                        onClick={() => removePreview(i)}
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
                       >
                         <X size={12} />
                       </button>
@@ -401,10 +439,9 @@ const ImageManagerModal = ({ isOpen, onClose, restaurant }) => {
                 </div>
                 <Button
                   variant="primary"
-                  size="sm"
                   fullWidth
                   isLoading={isUploading}
-                  leftIcon={<Upload size={14} />}
+                  leftIcon={<Upload size={16} />}
                   onClick={handleUpload}
                 >
                   Upload {previews.length} Image
@@ -412,6 +449,15 @@ const ImageManagerModal = ({ isOpen, onClose, restaurant }) => {
                 </Button>
               </div>
             )}
+          </div>
+        )}
+
+        {!canUploadMore && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-center">
+            <p className="text-sm text-yellow-700">
+              Maximum {maxImages} images allowed. Delete an image to upload a
+              new one.
+            </p>
           </div>
         )}
       </div>
@@ -431,9 +477,7 @@ const OwnerRestaurantsPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            My Restaurants
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">My Restaurants</h1>
           <p className="text-gray-500 mt-1">
             {restaurants?.length || 0} restaurants
           </p>
@@ -495,10 +539,7 @@ const OwnerRestaurantsPage = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <UtensilsCrossed
-                      size={40}
-                      className="text-primary-200"
-                    />
+                    <UtensilsCrossed size={40} className="text-primary-200" />
                   </div>
                 )}
 
@@ -522,9 +563,7 @@ const OwnerRestaurantsPage = () => {
 
               {/* Info */}
               <div className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-1">
-                  {r.name}
-                </h3>
+                <h3 className="font-semibold text-gray-900 mb-1">{r.name}</h3>
                 <p className="text-xs text-gray-500 flex items-center gap-1 mb-3">
                   <MapPin size={11} />
                   {r.address?.area}, {r.address?.city}

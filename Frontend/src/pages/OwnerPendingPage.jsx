@@ -1,19 +1,69 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectUser } from "../features/auth/authSlice.js";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUser, setCredentials } from "../features/auth/authSlice.js";
+import { authService } from "../services/auth.service.js";
 import Button from "../components/ui/Button.jsx";
-import { Home, Clock } from "lucide-react";
+import { Home, Clock, RefreshCw } from "lucide-react";
+import toast from "react-hot-toast";
 
 const OwnerPendingPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector(selectUser);
 
-  // If approved — redirect to dashboard
-  if (user?.ownerStatus === "approved") {
-    navigate("/owner");
-    return null;
-  }
+  // ✅ Poll every 15 seconds to check approval status
+  useEffect(() => {
+    if (user?.ownerStatus === "approved") {
+      navigate("/owner");
+      return;
+    }
+
+    const checkApproval = async () => {
+      try {
+        const result = await authService.getMe();
+        const freshUser = result.data;
+
+        if (freshUser.ownerStatus === "approved") {
+          const currentToken = localStorage.getItem("accessToken");
+          dispatch(setCredentials({
+            user: freshUser,
+            accessToken: currentToken,
+          }));
+          toast.success("🎉 Your account has been approved!");
+          navigate("/owner");
+        }
+      } catch (err) {
+        console.error("Status check failed:", err.message);
+      }
+    };
+
+    const interval = setInterval(checkApproval, 15000); // every 15s
+    return () => clearInterval(interval);
+  }, [user?.ownerStatus]);
+
+  const handleManualRefresh = async () => {
+    try {
+      const result = await authService.getMe();
+      const freshUser = result.data;
+      const currentToken = localStorage.getItem("accessToken");
+
+      dispatch(setCredentials({
+        user: freshUser,
+        accessToken: currentToken,
+      }));
+
+      if (freshUser.ownerStatus === "approved") {
+        toast.success("🎉 Approved! Redirecting...");
+        navigate("/owner");
+      } else {
+        toast("Still pending approval ⏳");
+      }
+    } catch (err) {
+      toast.error("Failed to check status");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -38,12 +88,11 @@ const OwnerPendingPage = () => {
           Thank you for subscribing to GoodFoods!
         </p>
         <p className="text-gray-500 text-sm mb-6">
-          Our team is reviewing your application. You'll receive an
-          email at{" "}
+          Our team is reviewing your application. We'll email you at{" "}
           <span className="font-semibold text-gray-700">
             {user?.email}
           </span>{" "}
-          within 24 hours once approved.
+          within 24 hours.
         </p>
 
         <div className="bg-primary-50 rounded-2xl p-4 mb-6 text-left">
@@ -54,13 +103,10 @@ const OwnerPendingPage = () => {
             {[
               "Admin reviews your business details",
               "Approval email sent within 24 hours",
-              "Owner dashboard unlocked",
+              "Owner dashboard unlocked automatically",
               "Start adding your restaurants!",
             ].map((item, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-2 text-xs text-primary-600"
-              >
+              <li key={i} className="flex items-center gap-2 text-xs text-primary-600">
                 <div className="w-4 h-4 bg-primary-200 rounded-full flex items-center justify-center shrink-0">
                   <span className="text-primary-700 font-bold text-xs">
                     {i + 1}
@@ -72,14 +118,28 @@ const OwnerPendingPage = () => {
           </ul>
         </div>
 
-        <Button
-          variant="outline"
-          fullWidth
-          leftIcon={<Home size={16} />}
-          onClick={() => navigate("/")}
-        >
-          Back to Home
-        </Button>
+        <p className="text-xs text-gray-400 mb-4">
+          Auto-checking status every 15 seconds...
+        </p>
+
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            fullWidth
+            leftIcon={<Home size={16} />}
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </Button>
+          <Button
+            variant="primary"
+            fullWidth
+            leftIcon={<RefreshCw size={16} />}
+            onClick={handleManualRefresh}
+          >
+            Check Status
+          </Button>
+        </div>
       </motion.div>
     </div>
   );

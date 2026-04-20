@@ -33,9 +33,10 @@ export const getMenu = asyncHandler(async (req, res) => {
       ? await getMenuGroupedByCategory(restaurantId)
       : await getMenuByRestaurant(restaurantId);
 
+  // ✅ Return empty instead of 404
   return res
     .status(200)
-    .json(new ApiResponse(200, menu, "Menu fetched successfully"));
+    .json(new ApiResponse(200, menu || {}, "Menu fetched successfully"));
 });
 
 export const addItems = asyncHandler(async (req, res) => {

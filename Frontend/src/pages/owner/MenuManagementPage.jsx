@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Plus, Edit2, Trash2, Upload,
-  X, Check, Leaf, Drumstick,
-  ChevronLeft, Image, ToggleLeft,
+  Plus,
+  Edit2,
+  Trash2,
+  Upload,
+  X,
+  Check,
+  Leaf,
+  Drumstick,
+  ChevronLeft,
+  Image,
+  ToggleLeft,
   ToggleRight,
 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useMenu, useAddMenuItems, useToggleItemAvailability, useDeleteMenuItem } from "../../hooks/useMenu.js";
+import {
+  useMenu,
+  useAddMenuItems,
+  useToggleItemAvailability,
+  useDeleteMenuItem,
+} from "../../hooks/useMenu.js";
 import { useMyRestaurants } from "../../hooks/useOwner.js";
 import Button from "../../components/ui/Button.jsx";
 import Input from "../../components/ui/Input.jsx";
@@ -24,8 +37,13 @@ import api from "../../services/api.js";
 import toast from "react-hot-toast";
 
 const CATEGORIES = [
-  "Starters", "Main Course", "Breads",
-  "Rice & Biryani", "Desserts", "Drinks", "Sides",
+  "Starters",
+  "Main Course",
+  "Breads",
+  "Rice & Biryani",
+  "Desserts",
+  "Drinks",
+  "Sides",
 ];
 
 // ✅ Hook for menu item image upload
@@ -36,7 +54,7 @@ const useUploadMenuItemImage = (restaurantId) => {
       api.post(
         `/restaurants/${restaurantId}/menu/items/${itemId}/image`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["menu", restaurantId] });
@@ -76,7 +94,7 @@ const MenuItemCard = ({ item, restaurantId, onEdit }) => {
         "flex gap-3 p-3 rounded-xl border transition-all duration-200",
         item.isAvailable
           ? "border-gray-100 bg-white hover:shadow-sm"
-          : "border-gray-100 bg-gray-50 opacity-60"
+          : "border-gray-100 bg-gray-50 opacity-60",
       )}
     >
       {/* Item Image */}
@@ -101,14 +119,18 @@ const MenuItemCard = ({ item, restaurantId, onEdit }) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           {/* Veg indicator */}
-          <div className={cn(
-            "w-3.5 h-3.5 rounded-sm border-2 flex items-center justify-center shrink-0",
-            item.isVeg ? "border-green-500" : "border-red-500"
-          )}>
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              item.isVeg ? "bg-green-500" : "bg-red-500"
-            )} />
+          <div
+            className={cn(
+              "w-3.5 h-3.5 rounded-sm border-2 flex items-center justify-center shrink-0",
+              item.isVeg ? "border-green-500" : "border-red-500",
+            )}
+          >
+            <div
+              className={cn(
+                "w-2 h-2 rounded-full",
+                item.isVeg ? "bg-green-500" : "bg-red-500",
+              )}
+            />
           </div>
           <p className="font-medium text-gray-900 text-sm line-clamp-1">
             {item.name}
@@ -120,7 +142,9 @@ const MenuItemCard = ({ item, restaurantId, onEdit }) => {
           </p>
         )}
         <div className="flex items-center gap-2">
-          <Badge variant="default" size="sm">{item.category}</Badge>
+          <Badge variant="default" size="sm">
+            {item.category}
+          </Badge>
           <span className="text-sm font-semibold text-gray-900">
             {formatPrice(item.price)}
           </span>
@@ -135,14 +159,15 @@ const MenuItemCard = ({ item, restaurantId, onEdit }) => {
             "p-1.5 rounded-lg transition-colors",
             item.isAvailable
               ? "text-green-500 hover:bg-green-50"
-              : "text-gray-400 hover:bg-gray-100"
+              : "text-gray-400 hover:bg-gray-100",
           )}
           title={item.isAvailable ? "Mark unavailable" : "Mark available"}
         >
-          {item.isAvailable
-            ? <ToggleRight size={18} />
-            : <ToggleLeft size={18} />
-          }
+          {item.isAvailable ? (
+            <ToggleRight size={18} />
+          ) : (
+            <ToggleLeft size={18} />
+          )}
         </button>
         <button
           onClick={() => onEdit(item, "edit")}
@@ -182,8 +207,9 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
   const { mutate: updateItem, isPending } = useUpdateMenuItemHook(restaurantId);
   const { mutate: uploadImage, isPending: isUploading } =
     useUploadMenuItemImage(restaurantId);
-  const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useState(null);
+  const [imgFile, setImgFile] = useState(null);
+  const [imgPreview, setImgPreview] = useState(null);
+  const imgInputRef = useRef(null);
 
   const onSubmit = (data) => {
     updateItem(
@@ -195,18 +221,19 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
           isVeg: data.isVeg === "true",
         },
       },
-      { onSuccess: onClose }
+      { onSuccess: onClose },
     );
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setImgFile(file);
+    setImgPreview(URL.createObjectURL(file));
 
-    setImagePreview(URL.createObjectURL(file));
+    // Auto upload
     const formData = new FormData();
     formData.append("image", file);
-
     uploadImage({ itemId: item._id, formData });
   };
 
@@ -218,8 +245,14 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
       size="md"
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" isLoading={isPending} onClick={handleSubmit(onSubmit)}>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            isLoading={isPending}
+            onClick={handleSubmit(onSubmit)}
+          >
             Save Changes
           </Button>
         </>
@@ -232,11 +265,16 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
             Item Image
           </label>
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-              {imagePreview || item?.image ? (
+            {/* Preview */}
+            <div
+              className="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shrink-0 cursor-pointer"
+              onClick={() => imgInputRef.current?.click()}
+            >
+              {imgPreview || item?.image ? (
                 <img
-                  src={imagePreview || item?.image}
+                  src={imgPreview || item?.image}
                   className="w-full h-full object-cover"
+                  alt="preview"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -244,26 +282,31 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
                 </div>
               )}
             </div>
+
+            {/* Upload button */}
             <div>
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<Upload size={14} />}
-                  isLoading={isUploading}
-                  as="span"
-                >
-                  {item?.image ? "Change Image" : "Upload Image"}
-                </Button>
-              </label>
+              <input
+                ref={imgInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+              <button
+                type="button"
+                onClick={() => imgInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                <Upload size={14} />
+                {isUploading
+                  ? "Uploading..."
+                  : item?.image
+                    ? "Change Image"
+                    : "Upload Image"}
+              </button>
               <p className="text-xs text-gray-400 mt-1">
-                JPG, PNG • Max 5MB
+                JPG, PNG, WebP · Max 5MB
               </p>
             </div>
           </div>
@@ -271,16 +314,9 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
-            <Input
-              label="Name"
-              {...register("name")}
-            />
+            <Input label="Name" {...register("name")} />
           </div>
-          <Input
-            label="Price (₹)"
-            type="number"
-            {...register("price")}
-          />
+          <Input label="Price (₹)" type="number" {...register("price")} />
           <Select
             label="Category"
             options={CATEGORIES.map((c) => ({ label: c, value: c }))}
@@ -302,15 +338,11 @@ const EditItemModal = ({ isOpen, onClose, item, restaurantId }) => {
         <div className="flex gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="radio" value="true" {...register("isVeg")} />
-            <span className="text-sm text-green-600 font-medium">
-              🥦 Veg
-            </span>
+            <span className="text-sm text-green-600 font-medium">🥦 Veg</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="radio" value="false" {...register("isVeg")} />
-            <span className="text-sm text-red-600 font-medium">
-              🍗 Non-Veg
-            </span>
+            <span className="text-sm text-red-600 font-medium">🍗 Non-Veg</span>
           </label>
         </div>
       </div>
@@ -323,11 +355,15 @@ const AddItemsModal = ({ isOpen, onClose, restaurantId }) => {
   const { mutate: addItems, isPending } = useAddMenuItems(restaurantId);
   const { control, register, handleSubmit, reset } = useForm({
     defaultValues: {
-      items: [{
-        name: "", description: "",
-        price: "", category: "Main Course",
-        isVeg: "true",
-      }],
+      items: [
+        {
+          name: "",
+          description: "",
+          price: "",
+          category: "Main Course",
+          isVeg: "true",
+        },
+      ],
     },
   });
 
@@ -359,7 +395,9 @@ const AddItemsModal = ({ isOpen, onClose, restaurantId }) => {
       size="2xl"
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             variant="primary"
             isLoading={isPending}
@@ -459,8 +497,10 @@ const AddItemsModal = ({ isOpen, onClose, restaurantId }) => {
           leftIcon={<Plus size={14} />}
           onClick={() =>
             append({
-              name: "", description: "",
-              price: "", category: "Main Course",
+              name: "",
+              description: "",
+              price: "",
+              category: "Main Course",
               isVeg: "true",
             })
           }

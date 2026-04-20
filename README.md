@@ -18,8 +18,13 @@ FoodVilla is a full-stack MERN application that enables users to discover restau
 
 ## 🚀 Live Demo
 
-🔗 **Frontend:** *https://foodvilla-zb5g.onrender.com*
-🔗 **Backend API:** *https://food-villa-ai.vercel.app*
+🔗 **Frontend:** <a href="https://food-villa-ai.vercel.app" target="_blank">
+  <img src="https://img.shields.io/badge/Live-Demo-22c55e?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+  
+🔗 **Backend API:** <a href="https://foodvilla-zb5g.onrender.com/health" target="_blank">
+  <img src="https://img.shields.io/badge/Live-Demo-22c55e?style=for-the-badge&logo=render&logoColor=white" />
+  </a>
 
 ---
 

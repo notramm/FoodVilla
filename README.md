@@ -1,8 +1,7 @@
-Here’s a **🔥 fully attractive, professional README.md** with badges, GIF placeholders, and screenshot sections — ready to paste into GitHub.
-
----
 
 # 🍽️ FoodVilla
+
+FoodVilla is a full-stack MERN application that enables users to discover restaurants, explore menus, and book reservations with the help of an AI-powered assistant, along with dedicated dashboards for admins and restaurant owners.
 
 <p align="center">
   <img src="https://img.shields.io/badge/FullStack-MERN-green?style=for-the-badge" />

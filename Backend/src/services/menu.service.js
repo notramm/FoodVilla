@@ -35,10 +35,7 @@ export const createMenu = async (restaurantId, items) => {
 
   const existingMenu = await Menu.findOne({ restaurant: restaurantId });
   if (existingMenu) {
-    throw new ApiError(
-      409,
-      "Menu already exists. Use update to add items."
-    );
+    throw new ApiError(409, "Menu already exists. Use update to add items.");
   }
 
   const menu = await Menu.create({
@@ -57,15 +54,13 @@ export const getMenuByRestaurant = async (restaurantId) => {
     isActive: true,
   });
 
-  if (!menu) {
-    throw new ApiError(404, "Menu not found for this restaurant");
-  }
-
-  return menu;
+  return menu || null;
 };
 
 export const getMenuGroupedByCategory = async (restaurantId) => {
   const menu = await getMenuByRestaurant(restaurantId);
+
+  if (!menu) return {};
 
   const availableItems = menu.items.filter((item) => item.isAvailable);
 
@@ -81,10 +76,14 @@ export const getMenuGroupedByCategory = async (restaurantId) => {
 };
 
 export const addMenuItems = async (restaurantId, newItems) => {
-  const menu = await Menu.findOne({ restaurant: restaurantId });
+  let menu = await Menu.findOne({ restaurant: restaurantId });
 
   if (!menu) {
-    throw new ApiError(404, "Menu not found. Create menu first.");
+    menu = await Menu.create({
+      restaurant: restaurantId,
+      items: [],
+      isActive: true,
+    });
   }
 
   menu.items.push(...newItems);
@@ -98,10 +97,10 @@ export const uploadMenuItemImage = async (
   restaurantId,
   itemId,
   fileBuffer,
-  mimetype
+  mimetype,
 ) => {
   const menu = await Menu.findOne({ restaurant: restaurantId }).select(
-    "+items.imagePublicId"
+    "+items.imagePublicId",
   );
 
   if (!menu) {
@@ -131,7 +130,7 @@ export const uploadMenuItemImage = async (
 // ✅ Delete image for a specific menu item
 export const deleteMenuItemImage = async (restaurantId, itemId) => {
   const menu = await Menu.findOne({ restaurant: restaurantId }).select(
-    "+items.imagePublicId"
+    "+items.imagePublicId",
   );
 
   if (!menu) {
@@ -194,7 +193,7 @@ export const toggleItemAvailability = async (restaurantId, itemId) => {
 
 export const deleteMenuItem = async (restaurantId, itemId) => {
   const menu = await Menu.findOne({ restaurant: restaurantId }).select(
-    "+items.imagePublicId"
+    "+items.imagePublicId",
   );
 
   if (!menu) {
@@ -233,7 +232,7 @@ export const searchMenuItems = async (restaurantId, query) => {
       (item.name.toLowerCase().includes(lowerQuery) ||
         item.category.toLowerCase().includes(lowerQuery) ||
         item.description?.toLowerCase().includes(lowerQuery) ||
-        item.tags?.some((t) => t.toLowerCase().includes(lowerQuery)))
+        item.tags?.some((t) => t.toLowerCase().includes(lowerQuery))),
   );
 };
 
@@ -260,7 +259,6 @@ export const getBestsellerItems = async (restaurantId) => {
   if (!menu) return [];
 
   return menu.items.filter(
-    (item) =>
-      item.isAvailable && item.tags?.includes("bestseller")
+    (item) => item.isAvailable && item.tags?.includes("bestseller"),
   );
 };

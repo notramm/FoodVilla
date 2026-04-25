@@ -1,157 +1,284 @@
-# 🍽️ FoodVilla — Enhanced Fork by Ram
-⚠️ This is a forked project with significant independent enhancements and architectural improvements.
-This repository is an enhanced and extended version of the original FoodVilla project, with major improvements across UI/UX, subscription systems, admin controls, analytics, and AI-driven features.
+
+# 🍽️ FoodVilla
+
+FoodVilla is a full-stack MERN application that enables users to discover restaurants, explore menus, and book reservations with the help of an AI-powered assistant, along with dedicated dashboards for admins and restaurant owners.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/FullStack-MERN-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/AI-Integrated-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" />
+</p>
+
+<p align="center">
+  <b>Smart Restaurant Booking & AI-Powered Food Platform</b>
+</p>
 
 ---
 
-## 🚀 Key Enhancements & Contributions
+## 🚀 Live Demo
 
-### 🖼️ Restaurant Experience
-
-* Interactive image gallery with navigation controls
-* Dot indicators and image counter badge
-* Smooth transitions using AnimatePresence
-* Thumbnail preview strip on detail page
-* Advanced image manager with preview, delete, and upload limits
-
----
-
-### 🍽️ Menu Management System
-
-* Full CRUD operations for menu items
-* Bulk item creation support
-* Image upload per item
-* Availability toggle and delete functionality
-* Owner dashboard integration (Menu tab)
+🔗 **Frontend:** <a href="https://food-villa-ai.vercel.app" target="_blank">
+  <img src="https://img.shields.io/badge/Live-Demo-22c55e?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+  
+🔗 **Backend API:** <a href="https://foodvilla-zb5g.onrender.com/health" target="_blank">
+  <img src="https://img.shields.io/badge/Live-Demo-22c55e?style=for-the-badge&logo=render&logoColor=white" />
+  </a>
 
 ---
 
-### 🤖 AI Chat System (Revamped UI)
+## 🎥 Demo Preview
 
-* Modern gradient chat interface
-* Expand/collapse chat window
-* Floating animated chat button
-* Welcome screen with suggestion grid
-* Typing indicators with animations
-* Markdown support (including images)
-* Featured ⭐ and Verified ✅ badges in responses
+> ⚡ Replace this GIF with your actual project demo
+
+<p align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3J4c2R1ZzZlZ3d3bHZqOXFqN2F3aW9hY3l5b3k2bHk2M2M2d2YyNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0MYt5jPR6QX5pnqM/giphy.gif" width="80%" />
+</p>
 
 ---
 
-### 👤 Owner & Subscription System
+## ✨ Features
 
-* Complete subscription flow (Free Trial, Premium, Featured)
-* Razorpay payment integration
-* Owner approval system with admin control
-* Role-based access control (User / Owner / Admin)
-* Owner pending state with polling and auto-redirect
+### 👤 User
 
----
-
-### 📊 Analytics & Insights
-
-* Real-time analytics dashboard for owners
-* Metrics: views, searches, bookings, AI mentions
-* Conversion rate tracking
-* Time filters (7 / 30 / 90 days)
-* Recharts integration
+* 🔍 Search & explore restaurants
+* 🍽️ Browse menus
+* 📅 Book reservations
+* 🧾 View booking history
+* 🤖 AI Chat Assistant
 
 ---
 
-### 🪑 Booking System Improvements
+### 🧑‍🍳 Owner
 
-* Visual table selection grid
-* Color-coded tables by type
-* Disabled tables based on group size
-* Reservation lifecycle handling (complete / cancel / no-show)
-
----
-
-### ⚙️ Backend Enhancements
-
-* Subscription & analytics models added
-* Commission system removed and replaced with subscription logic
-* Owner status approval system
-* Automated cron jobs:
-
-  * Subscription expiry (midnight)
-  * Trial ending reminders (9 AM)
-* Email notifications for subscription events
+* 🏪 Manage restaurants
+* 🍔 Manage menus
+* 📊 Analytics dashboard
+* 📅 Reservation control
+* 💳 Subscription system
 
 ---
 
-### 🔍 Filtering & Discovery
+### 🛠️ Admin
 
-* Ambiance & amenities filters (multi-select)
-* Backend query optimization using `$all`
-* Holiday-based closure handling
-
----
-
-### ⚠️ Error Handling & Stability
-
-* Reusable ErrorState component
-* Integrated across key pages
-* Environment validation using Zod (fail-fast approach)
+* 👥 Manage users & owners
+* 🏪 Approve restaurants
+* 📊 Platform analytics
+* 💰 Commission tracking
 
 ---
 
-### 🛠️ Admin Dashboard Enhancements
+## 🧠 AI Assistant
 
-* Owner approval/rejection system
-* Subscription & revenue tracking
-* Auto-refreshing admin data
-* Role-based UI restructuring
+💬 Smart chatbot powered by AI that can:
 
----
-
-### 🎨 UI/UX Improvements
-
-* Modern responsive layouts
-* Framer Motion animations:
-
-  * Hover effects
-  * Page transitions
-  * Scroll animations
-* Improved authentication pages and onboarding flow
+* 🔎 Search restaurants
+* 📅 Check availability
+* 🍽️ Recommend food (upsell)
+* 📌 Make/cancel reservations
+* 📖 Fetch booking history
 
 ---
 
-## 🔐 Roles & Access Control
+## 🏗️ Tech Stack
 
-* **User** → Can browse & become owner
-* **Owner (Pending)** → Waiting for admin approval
-* **Owner (Active)** → Full dashboard access
-* **Admin** → Complete system control
-
----
-
-## 🔄 Business Logic Highlights
-
-* Featured restaurants appear first in AI search
-* Subscription expiry auto-downgrades users
-* Admin banning cascades to restaurants
-* Full analytics tracking on user actions
+| Frontend      | Backend           | Database | AI            |
+| ------------- | ----------------- | -------- | ------------- |
+| React + Vite  | Node.js + Express | MongoDB  | Groq / OpenAI |
+| Tailwind CSS  | REST APIs         | Mongoose | AI Tools      |
+| Redux Toolkit | JWT Auth          |          |               |
 
 ---
 
-## 🧠 Tech Stack
+## 📸 Screenshots
 
-* Frontend: React, Redux, Tailwind CSS, Framer Motion
-* Backend: Node.js, Express
-* Database: MongoDB
-* Payments: Razorpay
-* Validation: Zod
-* Charts: Recharts
+
+> 📌 Replace these with your actual screenshots
+
+### 🏠 Home Page
+
+<p align="center">
+  <img width="800" height="400" alt="Homepage" src="https://github.com/user-attachments/assets/50b46c56-369f-462b-a1ae-cd3e8ecada34" />
+</p>
+
+### 🍽️ Admin
+
+<p align="center">
+  <img width="800" height="400" alt="admin" src="https://github.com/user-attachments/assets/ff749f9f-19d8-40c4-a947-128f071467f7" />
+  <br/>
+  <img width="800" height="400" alt="admianaly" src="https://github.com/user-attachments/assets/51908fb3-4680-447e-bb3f-075beb7707a9" />
+</p>
+
+### 📅 Booking Page
+
+<p align="center">
+  <img width="800" height="400" alt="userRes" src="https://github.com/user-attachments/assets/56157dd2-c198-497d-a514-859edca8d7da" />
+</p>
+
+### 🤖 AI Chat
+
+<p align="center">
+  <img width="800" height="400" alt="AiChat" src="https://github.com/user-attachments/assets/d24816f3-8e68-44ee-b6e2-70e2e892dca8" />
+</p>
 
 ---
 
-## ✨ Summary
+## 📁 Project Structure
 
-This fork significantly upgrades the original FoodVilla project into a production-ready platform with advanced features, scalable architecture, and enhanced user experience across all roles.
+```
+FoodVilla/
+├── Backend/        # API + AI
+└── Frontend/       # React App
+```
 
 ---
 
-## 🙌 Contribution Note
+## ⚙️ Installation
 
-This is a forked project. Major enhancements, system redesigns, and feature implementations have been contributed independently to extend the original functionality.
+### 1️⃣ Clone Repo
+
+```bash
+git clone https://github.com/Sahil191202/FoodVilla.git
+cd FoodVilla
+```
+
+---
+
+### 2️⃣ Backend Setup
+
+```bash
+cd Backend
+npm install
+```
+
+Create `.env`
+
+```env
+PORT=3000
+MONGO_URI=your_uri
+JWT_SECRET=your_secret
+CLOUDINARY_API_KEY=your_key
+OPENAI_API_KEY=your_key
+```
+
+Run:
+
+```bash
+npm run dev
+```
+
+---
+
+### 3️⃣ Frontend Setup
+
+```bash
+cd Frontend
+npm install
+```
+
+Create `.env`
+
+```env
+VITE_URL=http://localhost:3000
+```
+
+Run:
+
+```bash
+npm run dev
+```
+
+---
+
+## 🔐 Environment Variables
+
+### Backend
+
+* `PORT`
+* `MONGO_URI`
+* `JWT_SECRET`
+* `CLOUDINARY_*`
+* `OPENAI / GROQ KEY`
+
+### Frontend
+
+* `VITE_URL`
+
+---
+
+## 🚀 Deployment
+
+| Platform         | Usage    |
+| ---------------- | -------- |
+| Vercel           | Frontend |
+| Render / Railway | Backend  |
+| MongoDB Atlas    | Database |
+
+---
+
+## 📊 Modules
+
+* 🔐 Authentication
+* 🏪 Restaurant System
+* 📅 Reservation System
+* 🤖 AI Chat System
+* 💳 Subscription System
+* 📊 Analytics
+
+---
+
+## 🔮 Future Scope
+
+* 📱 Mobile App
+* 💳 Payment Integration
+* ⭐ Ratings & Reviews
+* 📍 Location-based suggestions
+* 🔔 Notifications
+
+---
+
+## 🤝 Contributing
+
+```bash
+1. Fork the repo
+2. Create a branch
+3. Make changes
+4. Submit PR
+```
+
+---
+
+## ⭐ Support
+
+If you like this project:
+
+👉 Give it a **star ⭐**
+👉 Share with others
+
+---
+
+## 👨‍💻 Author
+
+**Sahil**
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## 💡 Pro Tips (Important for You)
+
+* Replace:
+
+  * GIF → screen recording (use **ScreenToGif** or OBS)
+  * Screenshots → your actual UI images
+* Add:
+
+  * ⭐ GitHub stars badge later
+  * 🚀 Deployment link when live
+
+---
